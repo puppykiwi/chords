@@ -50,7 +50,14 @@ def get_playlist_tracks(playlist_id):
 
     return track_dict
 
+def get_audio_features(track_dict):
+    track_uris = [track["uri"] for track in track_dict.values()]
+    audio_features = sp.audio_features(track_uris)
+    print(audio_features) # debug
+    return audio_features
+
+
 if __name__ == "__main__":
     playlist_id = get_playlist_id("Indie Sounds")
     tracks = get_playlist_tracks(playlist_id)
-    print(tracks)
+    audio_features = get_audio_features(tracks)
