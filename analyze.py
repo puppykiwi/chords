@@ -13,14 +13,8 @@ SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 
-scope = "user-library-read playlist-modify-private"
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
-current_user_id = sp.current_user()["id"]
-
 features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
-feature=2
-order="top" 
-num=20
+
 source_playlist_name = "Indie ⚜ Infusion"
 playlist_id = "7eG04lBozqMlzgmpM1omp3"
 
@@ -28,7 +22,7 @@ playlist_id = "7eG04lBozqMlzgmpM1omp3"
 def get_playlist_id(playlist_name):
     #print("Current user ID: ", current_user_id) # debug
 
-    playlists = sp.user_playlists(user=current_user_id)
+    playlists = sp.user_playlists(user=sp.current_user()["id"])
     if playlists["items"]:
         for playlist in playlists["items"]:
             if playlist["name"] == playlist_name:
@@ -45,7 +39,7 @@ def get_playlist_tracks(playlist_id):
         results = sp.playlist_tracks(playlist_id=playlist_id, limit=limit, offset=offset)
         tracks.extend(results["items"])
         if len(results["items"]) < limit:
-            #print("\nAll tracks fetched") #debug
+            print("\nAll tracks fetched from {}".format(source_playlist_name)) #debug
             break
         offset += limit
         time.sleep(1) 
@@ -78,10 +72,28 @@ def get_audio_features(track_dict):
 
     return audio_features
 
+def get_ranking():
+    global feature, order, num
+    order = "top"
+    num = 10
+    print("\n*** Rank tracks by audio feature ***\n")
+    for key, value in features.items():
+        print(key, value)
+    feature = int(input("Enter feature to rank by: "))
+    order = input("Enter order [A]scending or [D]escending (default=A): ").lower().strip()
+    if order == "d":
+        order = "bottom"
+    
+    num = int(input("Enter number of songs (default={}) : ".format(num)))
+    return feature, order, num
+
+
 def rank_tracks(audio_features ,feature ,order, num ):
     ranked_tracks = sorted(audio_features, key=lambda x: x[features[feature]], reverse=True)
     
-    #print("\n*** {} tracks ranked by {} ***".format(order, features[feature])) # debug
+    print("\n*** {} tracks ranked by {} ***".format(order, features[feature])) # debug
+    for index, track in enumerate(ranked_tracks):
+        print(index, track["name"], track[features[feature]])
     if order == "top":
         return ranked_tracks[:num]
     elif order == "bottom":
@@ -89,7 +101,7 @@ def rank_tracks(audio_features ,feature ,order, num ):
 
 def save_tracks(ranked_tracks):
     new_playlist_name = "{} {} by {} from {}".format(order.capitalize(), num, features[feature], source_playlist_name)
-    new_playlist = sp.user_playlist_create(user=current_user_id, name=new_playlist_name, public=False)
+    new_playlist = sp.user_playlist_create(user=sp.current_user()["id"], name=new_playlist_name, public=False)
     print("\nNew playlist created: ", new_playlist_name) # debug
 
     print("Adding tracks to new playlist...") # debug
@@ -97,11 +109,25 @@ def save_tracks(ranked_tracks):
     sp.playlist_add_items(playlist_id=new_playlist["id"], items=track_uris)
     print("Tracks added: ", len(track_uris)) # debug
 
-if __name__ == "__main__":
-    #playlist_id = get_playlist_id(source_playlist_name)
+def main():
+    print("*** Welcome to the Spotify Playlist sorter! ***\n")
+    scope = "user-library-read playlist-modify-private"
+    global sp
+    print("Authenticating...") # debug
+    sp =spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+
+    print("Current user name: ", sp.current_user()["display_name"])
+    print("Current user ID: ", sp.current_user()["id"] , "\n")
+
+    playlist_id = get_playlist_id(source_playlist_name)
     tracks = get_playlist_tracks(playlist_id)
     audio_features = get_audio_features(tracks)
+    ranking = get_ranking()
     ranked_tracks = rank_tracks(audio_features ,feature ,order, num)
     save_tracks(ranked_tracks)
+
+
+if __name__ == "__main__":
+    main()
     
     
