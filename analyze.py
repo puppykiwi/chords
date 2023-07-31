@@ -37,7 +37,7 @@ def get_playlist_tracks(playlist_id):
         results = sp.playlist_tracks(playlist_id=playlist_id, limit=limit, offset=offset)
         tracks.extend(results["items"])
         if len(results["items"]) < limit:
-            print("All tracks fetched")
+            print("\nAll tracks fetched")
             break
         offset += limit
         time.sleep(1) 
