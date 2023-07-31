@@ -15,9 +15,14 @@ SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 
 scope = "user-library-read playlist-modify-private"
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+current_user_id = sp.current_user()["id"]
+features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
+feature=2
+order="top" 
+num=10
+
 
 def get_playlist_id(playlist_name):
-    current_user_id = sp.current_user()["id"]
     #print("Current user ID: ", current_user_id) # debug
 
     playlists = sp.user_playlists(user=current_user_id)
@@ -70,24 +75,28 @@ def get_audio_features(track_dict):
 
     return audio_features
 
-def rank_tracks(audio_features, feature=0, order="top", num=10):
-    features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
+def rank_tracks(audio_features ,feature ,order, num ):
     ranked_tracks = sorted(audio_features, key=lambda x: x[features[feature]], reverse=True)
-    result = []
-    for index, track in enumerate(ranked_tracks):
-        result.append({"name": track["name"], "rank": index + 1, "value": track[features[feature]]})
     
     print("\n*** {} tracks ranked by {} ***".format(order, features[feature])) # debug
     if order == "top":
-        return result[:num]
+        return ranked_tracks[:num]
     elif order == "bottom":
-        return result[-num:]
+        return ranked_tracks[-num:]
+
+def save_tracks(ranked_tracks):
+    new_playlist_name = "{} {} songs ranked by {}".format(order, num, features[feature])
+    new_playlist = sp.user_playlist_create(user=current_user_id, name=new_playlist_name, public=False)
+
+    track_uris = [track["uri"] for track in ranked_tracks]
+    sp.playlist_add_items(playlist_id=new_playlist["id"], items=track_uris)
+    print("\nNew playlist created: ", new_playlist_name) # debug
 
 if __name__ == "__main__":
     playlist_id = get_playlist_id("Liked Songs by kiwi")
     tracks = get_playlist_tracks(playlist_id)
     audio_features = get_audio_features(tracks)
-    ranked_tracks = rank_tracks(audio_features, feature=0, order="bottom", num=10)
-    for track in ranked_tracks:
-        print(track["rank"], track["name"], track["value"])
+    ranked_tracks = rank_tracks(audio_features ,feature ,order, num)
+    save_tracks(ranked_tracks)
+    
     
