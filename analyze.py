@@ -16,10 +16,13 @@ SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 scope = "user-library-read playlist-modify-private"
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 current_user_id = sp.current_user()["id"]
+
 features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
 feature=2
 order="top" 
-num=10
+num=20
+source_playlist_name = "Indie ⚜ Infusion"
+playlist_id = "7eG04lBozqMlzgmpM1omp3"
 
 
 def get_playlist_id(playlist_name):
@@ -78,22 +81,24 @@ def get_audio_features(track_dict):
 def rank_tracks(audio_features ,feature ,order, num ):
     ranked_tracks = sorted(audio_features, key=lambda x: x[features[feature]], reverse=True)
     
-    print("\n*** {} tracks ranked by {} ***".format(order, features[feature])) # debug
+    #print("\n*** {} tracks ranked by {} ***".format(order, features[feature])) # debug
     if order == "top":
         return ranked_tracks[:num]
     elif order == "bottom":
         return ranked_tracks[-num:]
 
 def save_tracks(ranked_tracks):
-    new_playlist_name = "{} {} songs ranked by {}".format(order, num, features[feature])
+    new_playlist_name = "{} {} by {} from {}".format(order.capitalize(), num, features[feature], source_playlist_name)
     new_playlist = sp.user_playlist_create(user=current_user_id, name=new_playlist_name, public=False)
-
-    track_uris = [track["uri"] for track in ranked_tracks]
-    sp.playlist_add_items(playlist_id=new_playlist["id"], items=track_uris)
     print("\nNew playlist created: ", new_playlist_name) # debug
 
+    print("Adding tracks to new playlist...") # debug
+    track_uris = [track["uri"] for track in ranked_tracks]
+    sp.playlist_add_items(playlist_id=new_playlist["id"], items=track_uris)
+    print("Tracks added: ", len(track_uris)) # debug
+
 if __name__ == "__main__":
-    playlist_id = get_playlist_id("Liked Songs by kiwi")
+    #playlist_id = get_playlist_id(source_playlist_name)
     tracks = get_playlist_tracks(playlist_id)
     audio_features = get_audio_features(tracks)
     ranked_tracks = rank_tracks(audio_features ,feature ,order, num)
