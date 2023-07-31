@@ -70,14 +70,19 @@ def get_audio_features(track_dict):
 
     return audio_features
 
-def rank_tracks(audio_features, feature=input("Enter a feature to rank by: ")):
-    ranked_tracks = sorted(audio_features, key=lambda x: x[feature], reverse=True)
+def rank_tracks(audio_features, feature=0):
+    features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
+    ranked_tracks = sorted(audio_features, key=lambda x: x[features[feature]], reverse=True)
+    result = []
     for index, track in enumerate(ranked_tracks):
-        print((index+1 ), track["name"], track[feature])
-    return ranked_tracks
+        result.append({"name": track["name"], "rank": index + 1, "value": track[features[feature]]})
+    return result
 
 if __name__ == "__main__":
     playlist_id = get_playlist_id("Liked Songs by kiwi")
     tracks = get_playlist_tracks(playlist_id)
     audio_features = get_audio_features(tracks)
-    ranked_tracks = rank_tracks(audio_features)
+    ranked_tracks = rank_tracks(audio_features,5)
+    for track in ranked_tracks:
+        print(track)
+    
