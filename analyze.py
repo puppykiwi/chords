@@ -41,7 +41,14 @@ def get_playlist_tracks(playlist_id):
             break
         offset += limit
         time.sleep(1) 
-    return tracks
+    
+    track_dict = {}
+    for index, track_info in enumerate(tracks):
+        track_name = track_info["track"]["name"]
+        track_uri = track_info["track"]["uri"]
+        track_dict[index] = {"name": track_name, "uri": track_uri}
+
+    return track_dict
 
 if __name__ == "__main__":
     playlist_id = get_playlist_id("Indie Sounds")
