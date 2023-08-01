@@ -1,2 +1,3 @@
+.cache
+plan*
 .env
-plan.md
