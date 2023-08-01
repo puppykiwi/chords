@@ -15,8 +15,8 @@ SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 
 features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
 
-source_playlist_name = "Indie ⚜ Infusion"
-playlist_id = "7eG04lBozqMlzgmpM1omp3"
+source_playlist_name = ""
+#playlist_id = "7eG04lBozqMlzgmpM1omp3"
 
 
 def get_playlist_id(playlist_name):
@@ -119,10 +119,16 @@ def main():
     print("Current user name: ", sp.current_user()["display_name"])
     print("Current user ID: ", sp.current_user()["id"] , "\n")
 
-    playlist_id = get_playlist_id(source_playlist_name)
+    print("Getting playlist ID...") # debug
+    source_playlist_name = input("Enter source playlist name or press Enter to input ID: ")
+    if source_playlist_name == "":
+        playlist_id = input("Enter playlist ID: ")
+    else:
+        playlist_id = get_playlist_id(source_playlist_name)
+    
     tracks = get_playlist_tracks(playlist_id)
     audio_features = get_audio_features(tracks)
-    ranking = get_ranking()
+    get_ranking()
     ranked_tracks = rank_tracks(audio_features ,feature ,order, num)
     save_tracks(ranked_tracks)
 
