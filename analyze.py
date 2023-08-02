@@ -7,6 +7,7 @@ import os
 import time
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
+from fuzzywuzzy import fuzz
 
 load_dotenv()
 SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
@@ -25,7 +26,7 @@ def get_playlist_id(playlist_name):
     playlists = sp.user_playlists(user=sp.current_user()["id"])
     if playlists["items"]:
         for playlist in playlists["items"]:
-            if playlist["name"] == playlist_name:
+            if fuzz.ratio(playlist_name.lower(), playlist["name"].lower()) > 80:
                 print("Playlist name: ",playlist["name"],"\nPlaylist ID: ", playlist["id"]) # debug
                 return playlist["id"]
 
