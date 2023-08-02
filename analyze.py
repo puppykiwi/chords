@@ -20,15 +20,44 @@ source_playlist_name = ""
 #playlist_id = "7eG04lBozqMlzgmpM1omp3"
 
 
-def get_playlist_id(playlist_name):
-    #print("Current user ID: ", current_user_id) # debug
+from fuzzywuzzy import fuzz
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
+# Assuming you have initialized the Spotipy client as `sp` with the appropriate authentication.
+
+def get_playlist_id(playlist_name):
     playlists = sp.user_playlists(user=sp.current_user()["id"])
     if playlists["items"]:
+        matched_playlists = []
         for playlist in playlists["items"]:
             if fuzz.token_set_ratio(playlist_name.lower(), playlist["name"].lower()) > 80:
-                print("Playlist name: ",playlist["name"],"\nPlaylist ID: ", playlist["id"]) # debug
-                return playlist["id"]
+                matched_playlists.append(playlist)
+
+        if (matched_playlists and len(matched_playlists) > 1):
+            print("\n{} playlists match the criteria for '{}'".format(len(matched_playlists), playlist_name))
+            for i, playlist in enumerate(matched_playlists):
+                print(f"{i+1}. Name: {playlist['name']} \n   ID: {playlist['id']}")
+            
+            # Allow the user to pick a playlist
+            while True:
+                try:
+                    selection = int(input("Enter the number corresponding to the desired playlist: "))
+                    if 1 <= selection <= len(matched_playlists):
+                        return matched_playlists[selection - 1]["id"]
+                    else:
+                        print("Invalid selection. Please choose a valid number.")
+                except ValueError:
+                    print("Invalid input. Please enter a number.")
+        elif len(matched_playlists) == 1:
+            return matched_playlists[0]["id"]
+        else:
+            print("No matching playlists found.")
+    else:
+        print("No playlists found for the current user.")
+
+    return None
+
 
 def get_playlist_tracks(playlist_id):
     # Get all tracks from the source playlist using pagination
@@ -40,7 +69,7 @@ def get_playlist_tracks(playlist_id):
         results = sp.playlist_tracks(playlist_id=playlist_id, limit=limit, offset=offset)
         tracks.extend(results["items"])
         if len(results["items"]) < limit:
-            print("\nAll tracks fetched from {}".format(source_playlist_name)) #debug
+            print("\nAll tracks fetched ") #debug
             break
         offset += limit
         time.sleep(1) 
