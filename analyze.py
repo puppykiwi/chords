@@ -17,6 +17,8 @@ SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
 
 source_playlist_name = ""
+order = ""
+num = ''
 #playlist_id = "7eG04lBozqMlzgmpM1omp3"
 
 
@@ -113,6 +115,8 @@ def get_ranking():
     order = input("Enter order [A]scending or [D]escending (default=A): ").lower().strip()
     if order == "d":
         order = "bottom"
+    else:
+        order = "top"
     
     num = int(input("Enter number of songs (default={}) : ".format(num)))
     return feature, order, num
@@ -135,6 +139,7 @@ def save_tracks(ranked_tracks):
     print("\nNew playlist created: ", new_playlist_name) # debug
 
     print("Adding tracks to new playlist...") # debug
+    #print("Tracks to add: ", len(ranked_tracks)) # debug
     track_uris = [track["uri"] for track in ranked_tracks]
     sp.playlist_add_items(playlist_id=new_playlist["id"], items=track_uris)
     print("Tracks added: ", len(track_uris)) # debug
@@ -142,7 +147,7 @@ def save_tracks(ranked_tracks):
 def main():
     print("*** Welcome to the Spotify Playlist sorter! ***\n")
     scope = "user-library-read playlist-modify-private"
-    global sp
+    global sp, source_playlist_name
     print("Authenticating...") # debug
     sp =spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
@@ -156,10 +161,15 @@ def main():
     else:
         playlist_id = get_playlist_id(source_playlist_name)
     
+    source_playlist_name = sp.playlist(playlist_id)["name"]
+    print("Current playlist name: ", source_playlist_name) # debug
+    print("Current playlist ID: ", playlist_id) # debug
+    
     tracks = get_playlist_tracks(playlist_id)
     audio_features = get_audio_features(tracks)
     get_ranking()
     ranked_tracks = rank_tracks(audio_features ,feature ,order, num)
+    
     save_tracks(ranked_tracks)
 
 
