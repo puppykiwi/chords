@@ -26,7 +26,7 @@ def get_playlist_id(playlist_name):
     playlists = sp.user_playlists(user=sp.current_user()["id"])
     if playlists["items"]:
         for playlist in playlists["items"]:
-            if fuzz.ratio(playlist_name.lower(), playlist["name"].lower()) > 80:
+            if fuzz.token_set_ratio(playlist_name.lower(), playlist["name"].lower()) > 80:
                 print("Playlist name: ",playlist["name"],"\nPlaylist ID: ", playlist["id"]) # debug
                 return playlist["id"]
 
