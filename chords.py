@@ -10,23 +10,21 @@ from dotenv import load_dotenv
 from fuzzywuzzy import fuzz
 
 load_dotenv()
-SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
+# SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+# SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+# SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 
 features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
 
 source_playlist_name = ""
 order = ""
 num = ''
-#playlist_id = "7eG04lBozqMlzgmpM1omp3"
 
 
 from fuzzywuzzy import fuzz
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-# Assuming you have initialized the Spotipy client as `sp` with the appropriate authentication.
 
 def get_playlist_id(playlist_name):
     playlists = sp.user_playlists(user=sp.current_user()["id"])
