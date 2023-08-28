@@ -30,4 +30,4 @@ def get_auth_header(token):
 
 if __name__ == "__main__":
     token = get_token()
-    print("Token: ", token) # debug
+    print("Token: ", token) # debundebundebundebun
