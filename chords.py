@@ -10,20 +10,15 @@ from dotenv import load_dotenv
 from fuzzywuzzy import fuzz
 
 load_dotenv()
-# SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-# SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-# SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
+SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 
 features = {0: "danceability", 1: "energy", 2: "acousticness", 3: "instrumentalness", 4: "valence", 5: "tempo"}
 
 source_playlist_name = ""
 order = ""
 num = ''
-
-
-from fuzzywuzzy import fuzz
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 
 
 def get_playlist_id(playlist_name):
@@ -147,7 +142,7 @@ def main():
     scope = "user-library-read playlist-modify-private"
     global sp, source_playlist_name
     print("Authenticating...") # debug
-    sp =spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+    sp =spotipy.Spotify(SPOTIPY_CLIENT_ID, auth_manager=SpotifyOAuth(scope=scope))
 
     print("Current user name: ", sp.current_user()["display_name"])
     print("Current user ID: ", sp.current_user()["id"] , "\n")
