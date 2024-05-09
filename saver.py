@@ -3,11 +3,18 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import json
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-client_id="e86f9d7d6d0f4f429edd04bcca2fa5a1"
-client_secret="c1a360cf401547058847e0c1a52955b3"
-redirect_uri="http://localhost:3000"
-new_playlist_name = "Liked Songs by kiwi"
+client_id = os.getenv("SPOTIPY_CLIENT_SECRET")
+client_secret = os.getenv("SPOTIPY_CLIENT_ID")
+redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+
+# client_id="e86f9d7d6d0f4f429edd04bcca2fa5a1"
+# client_secret="c1a360cf401547058847e0c1a52955b3"
+# redirect_uri="http://localhost:3000"
+
+new_playlist_name = input("Enter your preferred name: ")
 
 # Initialize Spotipy client with OAuth2 authentication
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
@@ -35,3 +42,6 @@ track_uris = [track["track"]["uri"] for track in saved_tracks]
 sp.playlist_add_items(playlist_id=new_playlist["id"], items=track_uris)
 print(f"All saved tracks have been added to the playlist '{new_playlist_name}'.")
 # Example usage
+
+if __name__ == "__main__":
+    print(current_user_id)
