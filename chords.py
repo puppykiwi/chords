@@ -142,7 +142,8 @@ def main():
     scope = "user-library-read playlist-modify-private"
     global sp, source_playlist_name
     print("Authenticating...") # debug
-    sp =spotipy.Spotify(SPOTIPY_CLIENT_ID, auth_manager=SpotifyOAuth(scope=scope))
+    # sp =spotipy.Spotify(SPOTIPY_CLIENT_ID, auth_manager=SpotifyOAuth(scope=scope))
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
     print("Current user name: ", sp.current_user()["display_name"])
     print("Current user ID: ", sp.current_user()["id"] , "\n")
