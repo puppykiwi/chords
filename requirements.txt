@@ -1,0 +1,7 @@
+spotipy
+fuzzywuzzy
+time
+dotenv
+requests
+base64
+spotify
